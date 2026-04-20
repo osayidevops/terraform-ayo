@@ -40,3 +40,9 @@ terraform.rc
 # Terraform plan files
 # -------------------------
 *.tfplan
+
+# -------------------------
+# Ansible
+# -------------------------
+*.retry
+ansible/.ansible_async/
