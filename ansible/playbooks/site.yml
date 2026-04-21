@@ -1,0 +1,8 @@
+- name: Configure production server
+  hosts: web
+  become: yes
+
+  roles:
+    - common
+    - docker
+    - nginx
