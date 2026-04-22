@@ -16,11 +16,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 🔐 Azure authentication (required for Terraform)
       - name: Azure Login
         uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # 🧱 Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
@@ -30,11 +32,21 @@ jobs:
       - name: Terraform Apply
         run: terraform apply -auto-approve
 
+      # 🔑 Setup SSH key for Ansible
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+      # 📦 Install Ansible
       - name: Install Ansible
         run: sudo apt-get update && sudo apt-get install -y ansible
 
+      # 🚀 Run Ansible Playbook
       - name: Run Ansible Playbook
         run: |
           ansible-playbook \
           -i ansible/inventories/production/hosts.ini \
-          ansible/playbooks/site.yml
+          ansible/playbooks/site.yml \
+          --private-key ~/.ssh/id_ed25519
