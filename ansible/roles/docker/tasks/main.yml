@@ -1,4 +1,3 @@
----
 - name: Install Docker dependencies
   apt:
     name:
@@ -16,29 +15,26 @@
 
 - name: Add Docker repository
   apt_repository:
-    repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    repo: deb https://download.docker.com/linux/ubuntu jammy stable
     state: present
-    filename: docker
 
-- name: Install Docker Engine and plugins
+- name: Install Docker Engine
   apt:
     name:
       - docker-ce
       - docker-ce-cli
       - containerd.io
-      - docker-buildx-plugin
-      - docker-compose-plugin
     state: present
     update_cache: yes
 
-- name: Start and enable Docker service
+- name: Start Docker service
   service:
     name: docker
     state: started
     enabled: yes
 
-- name: Add azureuser to docker group
-  user:
-    name: azureuser
-    groups: docker
-    append: yes
+- name: Remove existing app container if it exists
+  command: docker rm -f app || true
+
+- name: Run application container
+  command: docker run -d --name app -p 80:5000 --restart always myapp
